@@ -5,6 +5,10 @@ import { motion, AnimatePresence } from "framer-motion";
 const isTauri = typeof window !== "undefined" &&
                 typeof window.__TAURI__ !== "undefined";
 
+// Mock state for browser development
+let mockConnected = false;
+let mockLevel = "L3";
+
 const invoke = async (cmd, args) => {
   if (isTauri) {
     const { invoke: tauriInvoke } = await import("@tauri-apps/api/tauri");
@@ -13,13 +17,14 @@ const invoke = async (cmd, args) => {
   // ── Mock responses for browser development ──
   await new Promise(r => setTimeout(r, 800));
   if (cmd === "start_daemon")  return { success: true, message: "Daemon started (mock)" };
-  if (cmd === "connect_vpn")   return { success: true, message: `Connected at L${args?.level}` };
-  if (cmd === "disconnect_vpn") return { success: true, message: "Disconnected" };
+  if (cmd === "connect_vpn")   { mockConnected = true; mockLevel = `L${args?.level}`; return { success: true, message: `Connected at L${args?.level}` }; }
+  if (cmd === "disconnect_vpn") { mockConnected = false; return { success: true, message: "Disconnected" }; }
   if (cmd === "get_status") {
+    // In browser mock mode — return connected so polling doesn't drop connection
     return {
-      connected: false, level: "L3", uptime: "0s",
+      connected: mockConnected, level: mockLevel, uptime: "2m 30s",
       exit_ip: "204.168.195.49", circuit: "Client → Guard → Mix1 → Mix2 → Exit",
-      traffic_up: "0B", traffic_down: "0B", kill_switch: true,
+      traffic_up: "1.2KB", traffic_down: "3.4KB", kill_switch: true,
     };
   }
   return { success: true };
