@@ -2,17 +2,12 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // ── Tauri API (graceful fallback for browser dev mode) ─────────
-let tauriInvoke = null;
-try {
-  const tauri = await import("@tauri-apps/api/tauri");
-  tauriInvoke = tauri.invoke;
-} catch {
-  // Running in browser (npm run dev without Tauri) — use mock
-  tauriInvoke = null;
-}
+const isTauri = typeof window !== "undefined" &&
+                typeof window.__TAURI__ !== "undefined";
 
 const invoke = async (cmd, args) => {
-  if (tauriInvoke) {
+  if (isTauri) {
+    const { invoke: tauriInvoke } = await import("@tauri-apps/api/tauri");
     return tauriInvoke(cmd, args);
   }
   // ── Mock responses for browser development ──
