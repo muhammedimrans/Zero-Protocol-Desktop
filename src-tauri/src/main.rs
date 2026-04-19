@@ -31,8 +31,31 @@ pub struct CommandResult {
     pub message: String,
 }
 
+// ── Helper: build command for zero binary ─────────────────────
+fn zero_cmd(zero: &str, args: &[&str]) -> Command {
+    #[cfg(target_os = "windows")]
+    {
+        let mut cmd = Command::new("wsl");
+        cmd.args(["--", "/home/zero/zero_protocol/target/release/zero"]);
+        cmd.args(args);
+        cmd
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        let mut cmd = Command::new(zero);
+        cmd.args(args);
+        cmd
+    }
+}
+
 // ── Helper: find the zero binary ──────────────────────────────
 fn find_zero_binary() -> String {
+    // On Windows, always use WSL to run the Linux daemon
+    #[cfg(target_os = "windows")]
+    return "wsl".to_string();
+
+    #[cfg(not(target_os = "windows"))]
+    {
     // Check next to the app binary first (production)
     if let Ok(exe) = std::env::current_exe() {
         let sibling = exe.parent().unwrap_or(std::path::Path::new(".")).join("zero");
@@ -53,6 +76,7 @@ fn find_zero_binary() -> String {
         }
     }
     "zero".to_string() // fallback: assume it's in PATH
+    } // end #[cfg(not(target_os = "windows"))]
 }
 
 // ── Tauri Commands ─────────────────────────────────────────────
@@ -63,8 +87,7 @@ async fn start_daemon(state: tauri::State<'_, Arc<Mutex<AppState>>>) -> Result<C
     let zero = find_zero_binary();
 
     // Check if daemon is already running
-    let check = Command::new(&zero)
-        .args(["daemon", "--status"])
+    let check = zero_cmd(&zero, &["daemon", "--status"])
         .output();
 
     if let Ok(out) = check {
@@ -75,8 +98,7 @@ async fn start_daemon(state: tauri::State<'_, Arc<Mutex<AppState>>>) -> Result<C
     }
 
     // Start daemon in background
-    let child = Command::new(&zero)
-        .args(["daemon", "--no-local-nodes"])
+    let child = zero_cmd(&zero, &["daemon", "--no-local-nodes"])
         .spawn()
         .map_err(|e| format!("Failed to start daemon: {}", e))?;
 
@@ -99,8 +121,7 @@ async fn connect_vpn(level: u8) -> Result<CommandResult, String> {
         return Err("Level must be 1-4".to_string());
     }
     let zero = find_zero_binary();
-    let output = Command::new(&zero)
-        .args(["daemon", "--connect", &level.to_string()])
+    let output = zero_cmd(&zero, &["daemon", "--connect", &level.to_string()])
         .output()
         .map_err(|e| format!("Failed to connect: {}", e))?;
 
@@ -119,8 +140,7 @@ async fn connect_vpn(level: u8) -> Result<CommandResult, String> {
 #[tauri::command]
 async fn disconnect_vpn() -> Result<CommandResult, String> {
     let zero = find_zero_binary();
-    let output = Command::new(&zero)
-        .args(["daemon", "--disconnect"])
+    let output = zero_cmd(&zero, &["daemon", "--disconnect"])
         .output()
         .map_err(|e| format!("Failed to disconnect: {}", e))?;
 
@@ -136,8 +156,7 @@ async fn disconnect_vpn() -> Result<CommandResult, String> {
 #[tauri::command]
 async fn get_status() -> Result<VpnStatus, String> {
     let zero = find_zero_binary();
-    let output = Command::new(&zero)
-        .args(["daemon", "--status"])
+    let output = zero_cmd(&zero, &["daemon", "--status"])
         .output()
         .map_err(|e| format!("Status check failed: {}", e))?;
 
@@ -210,7 +229,7 @@ async fn stop_daemon(state: tauri::State<'_, Arc<Mutex<AppState>>>) -> Result<Co
     }
     // Also try via zero CLI
     let zero = find_zero_binary();
-    Command::new(&zero).args(["daemon", "--disconnect"]).output().ok();
+    zero_cmd(&zero, &["daemon", "--disconnect"]).output().ok();
 
     Ok(CommandResult { success: true, message: "Daemon stopped".to_string() })
 }
@@ -269,7 +288,7 @@ fn main() {
                     }
                     "disconnect" => {
                         let zero = find_zero_binary();
-                        Command::new(&zero).args(["daemon", "--disconnect"]).spawn().ok();
+                        zero_cmd(&zero, &["daemon", "--disconnect"]).spawn().ok();
                     }
                     _ => {}
                 },
