@@ -20,7 +20,6 @@ tauri = { version = "1.6", features = [
   "window-hide",
   "window-show",
   "window-set-focus",
-  ,
 ] }
 
 [features]
