@@ -30,9 +30,9 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "resources": ["zero", "zero.exe"],
+      "resources": [],
       "externalBin": [],
-      "copyright": "© 2026 Zero Protocol",
+      "copyright": "\u00a9 2026 Zero Protocol",
       "category": "Network",
       "shortDescription": "Post-Quantum Sphinx Mixnet VPN",
       "longDescription": "Zero Protocol is a next-generation anonymity network combining post-quantum cryptography, Sphinx onion routing, statistical mixnet, and full VPN integration."
