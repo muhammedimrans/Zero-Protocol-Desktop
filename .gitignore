@@ -1,0 +1,9 @@
+node_modules/
+dist/
+src-tauri/target/
+src-tauri/Cargo.lock
+
+# wintun.dll is a binary downloaded during CI (see .github/workflows/build.yml).
+# For local Windows builds: download from https://www.wintun.net and place at
+# src-tauri/windows/wintun.dll
+src-tauri/windows/wintun.dll

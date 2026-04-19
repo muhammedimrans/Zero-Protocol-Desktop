@@ -30,12 +30,32 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "resources": [],
+      "resources": [
+        "windows/wintun.dll"
+      ],
       "externalBin": [],
       "copyright": "\u00a9 2026 Zero Protocol",
       "category": "Network",
       "shortDescription": "Post-Quantum Sphinx Mixnet VPN",
-      "longDescription": "Zero Protocol is a next-generation anonymity network combining post-quantum cryptography, Sphinx onion routing, statistical mixnet, and full VPN integration."
+      "longDescription": "Zero Protocol is a next-generation anonymity network combining post-quantum cryptography, Sphinx onion routing, statistical mixnet, and full VPN integration.",
+      "windows": {
+        "digestAlgorithm": "sha256",
+        "timestampUrl": "",
+        "wix": {
+          "language": "en-US"
+        },
+        "nsis": {
+          "installerIcon": "icons/icon.ico",
+          "uninstallerIcon": "icons/icon.ico",
+          "installMode": "perMachine"
+        }
+      },
+      "macOS": {
+        "minimumSystemVersion": "10.15",
+        "exceptionDomain": null,
+        "signingIdentity": null,
+        "entitlements": null
+      }
     },
     "security": {
       "csp": null
