@@ -178,6 +178,15 @@ async fn connect_vpn(level: u8) -> Result<CommandResult, String> {
         String::from_utf8_lossy(&output.stderr)
     );
     if output.status.success() || all.contains("Connected") || all.contains("✓") {
+        #[cfg(target_os = "windows")]
+        {
+            use std::os::windows::process::CommandExt;
+            const CREATE_NO_WINDOW: u32 = 0x08000000;
+            let _ = Command::new("powershell")
+                .args(["-Command", "Set-ItemProperty -Path 'HKCU:Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings' -Name ProxyEnable -Value 1; Set-ItemProperty -Path 'HKCU:Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings' -Name ProxyServer -Value 'socks=127.0.0.1:1080'"])
+                .creation_flags(CREATE_NO_WINDOW)
+                .spawn();
+        }
         Ok(CommandResult {
             success: true,
             message: format!("Connected at L{}", level),
@@ -204,6 +213,15 @@ async fn disconnect_vpn() -> Result<CommandResult, String> {
 
     let out = String::from_utf8_lossy(&output.stdout);
     if output.status.success() || out.contains("Disconnected") || out.contains("✓") {
+        #[cfg(target_os = "windows")]
+        {
+            use std::os::windows::process::CommandExt;
+            const CREATE_NO_WINDOW: u32 = 0x08000000;
+            let _ = Command::new("powershell")
+                .args(["-Command", "Set-ItemProperty -Path 'HKCU:Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings' -Name ProxyEnable -Value 0"])
+                .creation_flags(CREATE_NO_WINDOW)
+                .spawn();
+        }
         Ok(CommandResult {
             success: true,
             message: "Disconnected".to_string(),
