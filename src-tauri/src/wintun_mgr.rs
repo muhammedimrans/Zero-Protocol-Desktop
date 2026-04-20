@@ -12,7 +12,7 @@
 #[cfg(target_os = "windows")]
 mod inner {
     use std::path::PathBuf;
-    use std::sync::{Arc, Mutex, OnceLock};
+    use std::sync::{Arc, OnceLock};
 
     // The wintun handle and adapter are stored for the lifetime of the process.
     static ADAPTER: OnceLock<Arc<wintun::Adapter>> = OnceLock::new();
@@ -39,7 +39,8 @@ mod inner {
     pub fn setup() -> Result<String, String> {
         if let Some(adapter) = ADAPTER.get() {
             let luid = adapter.get_luid();
-            return Ok(format!("TUN adapter reused (LUID={:#018x})", luid.Value));
+            let luid_val = unsafe { luid.Value };
+            return Ok(format!("TUN adapter reused (LUID={:#018x})", luid_val));
         }
 
         let path = dll_path();
@@ -62,7 +63,7 @@ mod inner {
         };
 
         let luid = adapter.get_luid();
-        let luid_val = luid.Value;
+        let luid_val = unsafe { luid.Value };
 
         ADAPTER
             .set(adapter)
