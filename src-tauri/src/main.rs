@@ -45,9 +45,12 @@ pub struct CommandResult {
 fn zero_cmd(zero: &str, args: &[&str]) -> Command {
     #[cfg(target_os = "windows")]
     {
+        use std::os::windows::process::CommandExt;
+        const CREATE_NO_WINDOW: u32 = 0x08000000;
         let mut cmd = Command::new("wsl");
         cmd.args(["--", "/home/zero/zero_protocol/target/release/zero"]);
         cmd.args(args);
+        cmd.creation_flags(CREATE_NO_WINDOW);
         cmd
     }
     #[cfg(not(target_os = "windows"))]
