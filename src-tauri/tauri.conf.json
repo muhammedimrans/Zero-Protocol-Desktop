@@ -35,7 +35,7 @@
       ],
       "externalBin": [],
       "copyright": "\u00a9 2026 Zero Protocol",
-      "category": "Network",
+      "category": "Utility",
       "shortDescription": "Post-Quantum Sphinx Mixnet VPN",
       "longDescription": "Zero Protocol is a next-generation anonymity network combining post-quantum cryptography, Sphinx onion routing, statistical mixnet, and full VPN integration.",
       "windows": {
