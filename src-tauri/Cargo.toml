@@ -11,10 +11,6 @@ rust-version = "1.70"
 [build-dependencies]
 tauri-build = { version = "1.5", features = [] }
 
-# winres embeds the UAC manifest into the Windows .exe at link time.
-[target.'cfg(windows)'.build-dependencies]
-winres = "0.1"
-
 [dependencies]
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
