@@ -17,6 +17,12 @@
       "shell": {
         "all": false,
         "open": true
+      },
+      "window": {
+        "all": false,
+        "hide": true,
+        "show": true,
+        "setFocus": true
       }
     },
     "bundle": {
